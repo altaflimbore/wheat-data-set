@@ -1,0 +1,161 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+#define SIZE 1000
+
+void selectionSort(int arr[], int n);
+void insertionSort(int arr[], int n);
+void quickSort(int arr[], int low, int high);
+int partition(int arr[], int low, int high);
+void swap(int *a, int *b);
+void printArray(int arr[], int n);
+
+int main() {
+    int arr[SIZE];
+    int choice, i;
+    double time_spent;
+    clock_t begin, end;
+
+    // Populate the array with random numbers
+    srand(time(NULL));
+    for (i = 0; i < SIZE; i++) {
+        arr[i] = rand() % 100;
+    }
+
+    printf("Original Array:\n");
+    printArray(arr, SIZE);
+
+    while (1) {
+        printf("\n1. Selection Sort\n");
+        printf("\n2. Insertion Sort\n");
+        printf("\n3. Quick Sort\n");
+        printf("\n4. Exit\n");
+        printf("\n\nEnter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                begin = clock();
+                selectionSort(arr, SIZE);
+                end = clock();
+                time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+                printf("\n\nSorted Array (Selection Sort):\n");
+                printArray(arr, SIZE);       
+                printf("Time spent: %f\n", time_spent);
+                break;
+            case 2:
+                begin = clock();
+                insertionSort(arr, SIZE);
+                end = clock();
+                time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+                printf("\n\nSorted Array (Insertion Sort):\n");
+                printArray(arr, SIZE);
+                printf("Time spent: %f\n", time_spent);
+                break;
+            case 3:
+                begin = clock();
+                quickSort(arr, 0, SIZE-1);
+                end = clock();
+                time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+                printf("\n\nSorted Array (Quick Sort):\n");
+                printArray(arr, SIZE);
+                printf("Time spent: %f\n", time_spent);
+                break;
+            case 4:
+                exit(0);
+                break;
+            default:
+                printf("Invalid choice\n");
+        }
+    }
+
+    return 0;
+}
+
+void selectionSort(int arr[], int n) {
+    int i, j, min_idx;
+
+    // One by one move boundary of unsorted subarray
+    for (i = 0; i < n-1; i++) {
+        // Find the minimum element in unsorted array
+        min_idx = i;
+        for (j =i + 1; j < n; j++)
+if (arr[j] < arr[min_idx])
+min_idx = j;
+
+
+    // Swap the found minimum element with the first element
+    swap(&arr[min_idx], &arr[i]);
+}
+
+}
+
+// Insertion Sort Function
+void insertionSort(int arr[], int n) {
+int i, key, j;
+for (i = 1; i < n; i++) {
+key = arr[i];
+j = i - 1;
+
+
+    /* Move elements of arr[0..i-1], that are
+       greater than key, to one position ahead
+       of their current position */
+    while (j >= 0 && arr[j] > key) {
+        arr[j + 1] = arr[j];
+        j = j - 1;
+    }
+    arr[j + 1] = key;
+}
+
+}
+
+// Quick Sort Function
+void quickSort(int arr[], int low, int high) {
+if (low < high) {
+/* pi is partitioning index, arr[p] is now
+at right place */
+int pi = partition(arr, low, high);
+
+
+    // Separately sort elements before
+    // partition and after partition
+    quickSort(arr, low, pi - 1);
+    quickSort(arr, pi + 1, high);
+}
+
+}
+
+// Partition Function for Quick Sort
+int partition (int arr[], int low, int high) {
+int pivot = arr[high]; // pivot
+int i = (low - 1); // Index of smaller element
+
+for (int j = low; j <= high- 1; j++) {
+    // If current element is smaller than or
+    // equal to pivot
+    if (arr[j] <= pivot) {
+        i++;    // increment index of smaller element
+        swap(&arr[i], &arr[j]);
+    }
+}
+swap(&arr[i + 1], &arr[high]);
+return (i + 1);
+
+}
+
+// Function to swap two elements
+void swap(int *a, int *b) {
+int temp = *a;
+*a = *b;
+*b = temp;
+}
+
+// Function to print the array
+void printArray(int arr[], int n) {
+int i;
+for (i=0; i < n; i++)
+printf("%d ", arr[i]);
+printf("\n");
+}
