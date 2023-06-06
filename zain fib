@@ -1,1 +1,52 @@
+#include<stdio.h>
+
+int fibonacci(int n) {
+    if (n == 0 || n == 1) {
+        return n;
+    } else {
+        return fibonacci(n-1) + fibonacci(n-2);
+    }
+}
+
+int fibonacci_tail(int n, int a, int b) {
+    if (n == 0) {
+        return a;
+    } else if (n == 1) {
+        return b;
+    } else {
+        return fibonacci_tail(n - 1, b, a + b);
+    }
+}
+
+int main(){
+int num,fact,ch;
+while(1){
+printf("Enter a popsitive number");
+scanf("%d",&num);
+printf("Enter your choice\n1)fib without tail recursion \n2) fib with tail recursion ");
+scanf("%d",&ch);
+switch (ch)
+{
+case 1: 
+     
+                printf("Fibonacci sequence up to %d:\n", num);
+                for (int i = 0; i <= num; i++) {
+                    printf("%d ", fibonacci(i));
+                }
+                printf("\n");
+                
+                break;
+case 2:
+     
+                printf("Fibonacci sequence up to %d:\n", num);
+                for (int i = 0; i <= num; i++) {
+                    printf("%d ", fibonacci_tail(i, 0, 1));
+                }
+                printf("\n");
+                
+                break;
+
+}}
+return 0;
+}
 
