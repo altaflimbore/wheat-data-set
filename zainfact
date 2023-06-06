@@ -1,0 +1,46 @@
+#include<stdio.h>
+
+int factorial(int n)
+{
+    if(n==0){
+        return 1;
+    }
+    else
+    {
+        return n*factorial(n-1);
+    }
+}
+
+int factorial_tail(int n,int acc)
+{
+    if(n==0)
+    {
+        return acc;
+    }
+    else
+    {
+        return factorial_tail(n-1,n*acc);
+    }
+}
+
+int main(){
+int n,fact,ch;
+while(1){
+printf("Enter a popsitive number");
+scanf("%d",&n);
+printf("Enter your choice\n1)factorial without tail recursion \n2) factorial with tail recursion ");
+scanf("%d",&ch);
+switch (ch)
+{
+case 1: 
+     fact=factorial(n);
+     printf("factorial of %d is %d without tail recursion \n",n,fact);
+    break;
+case 2:
+     fact=factorial_tail(n,1);
+     printf("factorial of %d is %d \n",n,fact);
+    break;
+}}
+return 0;
+}
+
