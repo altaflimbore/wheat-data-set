@@ -1,0 +1,504 @@
+1) automatic naught and crosses using random number
+
+
+import random
+
+def print_board(board):
+    for row in board:
+        print(" | ".join(row))
+        print("-" * 9)
+
+def is_winner(board, player):
+    # Check rows
+    for row in board:
+        if all(cell == player for cell in row):
+            return True
+
+    # Check columns
+    for col in range(3):
+        if all(board[row][col] == player for row in range(3)):
+            return True
+
+    # Check diagonals
+    if all(board[i][i] == player for i in range(3)) or all(board[i][2 - i] == player for i in range(3)):
+        return True
+
+    return False
+
+def is_board_full(board):
+    return all(cell != ' ' for row in board for cell in row)
+
+def play_game():
+    board = [[' ' for _ in range(3)] for _ in range(3)]
+    players = ['X', 'O']
+    current_player = random.choice(players)
+
+    print("Welcome to Tic Tac Toe!")
+    print_board(board)
+
+    while True:
+        print(f"Player {current_player}'s turn:")
+        row = random.randint(0, 2)
+        col = random.randint(0, 2)
+
+        while board[row][col] != ' ':
+            row = random.randint(0, 2)
+            col = random.randint(0, 2)
+
+        board[row][col] = current_player
+        print_board(board)
+
+        if is_winner(board, current_player):
+            print(f"Player {current_player} wins!")
+            break
+        elif is_board_full(board):
+            print("It's a draw!")
+            break
+
+        current_player = 'X' if current_player == 'O' else 'O'
+
+if __name__ == "__main__":
+    play_game()
+
+
+2)use heuristic search tech to implement hill climbing algo
+
+
+import random
+
+def print_board(board):
+    for row in board:
+        print(" | ".join(row))
+        print("-" * 9)
+
+def is_winner(board, player):
+    for row in board + list(zip(*board)):
+        if all(cell == player for cell in row):
+            return True
+    return all(board[i][i] == player for i in range(3)) or all(board[i][2 - i] == player for i in range(3))
+
+def is_board_full(board):
+    return all(cell != ' ' for row in board for cell in row)
+
+def evaluate_board(board, player):
+    return sum(row.count(player) for row in board) + sum(board[i][i] == player for i in range(3)) + sum(board[i][2 - i] == player for i in range(3))
+
+def get_available_moves(board):
+    return [(i, j) for i in range(3) for j in range(3) if board[i][j] == ' ']
+
+def make_move(board, player, move):
+    board[move[0]][move[1]] = player
+
+def play_game():
+    board = [[' ' for _ in range(3)] for _ in range(3)]
+    players = ['X', 'O']
+    current_player = random.choice(players)
+
+    print("Welcome to Tic Tac Toe!")
+    print_board(board)
+
+    while True:
+        print(f"Player {current_player}'s turn:")
+        move = (int(input("Enter row (0, 1, or 2): ")), int(input("Enter column (0, 1, or 2): "))) if current_player == 'X' else max(get_available_moves(board), key=lambda move: evaluate_board([row[:] for row in board], current_player))
+
+        make_move(board, current_player, move)
+        print_board(board)
+
+        if is_winner(board, current_player):
+            print(f"Player {current_player} wins!")
+            break
+        elif is_board_full(board):
+            print("It's a draw!")
+            break
+
+        current_player = 'X' if current_player == 'O' else 'O'
+
+if __name__ == "__main__":
+    play_game()
+
+3) constraint satisfaction problem in sudoku
+
+
+def print_board(board):
+    for row in board:
+        print(" ".join(map(str, row)))
+
+def is_valid_move(board, row, col, num):
+    # Check if the number is not in the same row or column
+    if num in board[row] or num in [board[i][col] for i in range(9)]:
+        return False
+
+    # Check if the number is not in the same 3x3 subgrid
+    start_row, start_col = 3 * (row // 3), 3 * (col // 3)
+    for i in range(start_row, start_row + 3):
+        for j in range(start_col, start_col + 3):
+            if board[i][j] == num:
+                return False
+
+    return True
+
+def find_empty_location(board):
+    for i in range(9):
+        for j in range(9):
+            if board[i][j] == 0:
+                return i, j
+    return None
+
+def solve_sudoku(board):
+    empty_location = find_empty_location(board)
+
+    if not empty_location:
+        return True  # Puzzle is solved
+
+    row, col = empty_location
+
+    for num in range(1, 10):
+        if is_valid_move(board, row, col, num):
+            board[row][col] = num
+
+            if solve_sudoku(board):
+                return True  # Successfully solved
+
+            # If placing num in current position doesn't lead to a solution, backtrack
+            board[row][col] = 0
+
+    return False  # No solution found
+
+if __name__ == "__main__":
+    # Example Sudoku puzzle (0 represents an empty cell)
+    sudoku_board = [
+        [5, 3, 0, 0, 7, 0, 0, 0, 0],
+        [6, 0, 0, 1, 9, 5, 0, 0, 0],
+        [0, 9, 8, 0, 0, 0, 0, 6, 0],
+        [8, 0, 0, 0, 6, 0, 0, 0, 3],
+        [4, 0, 0, 8, 0, 3, 0, 0, 1],
+        [7, 0, 0, 0, 2, 0, 0, 0, 6],
+        [0, 6, 0, 0, 0, 0, 2, 8, 0],
+        [0, 0, 0, 4, 1, 9, 0, 0, 5],
+        [0, 0, 0, 0, 8, 0, 0, 7, 9]
+    ]
+
+    print("Sudoku Puzzle:")
+    print_board(sudoku_board)
+
+    if solve_sudoku(sudoku_board):
+        print("\nSudoku Solution:")
+        print_board(sudoku_board)
+    else:
+        print("\nNo solution exists.")
+
+
+
+4)Goal stack planning for block world problem
+
+
+class BlockWorld:
+    def __init__(self):
+        self.state = []
+
+    def add_state(self, statement):
+        self.state.append(statement)
+
+    def apply_action(self, action):
+        print(f"Executing action: {action}")
+        # Implement the actual action here
+        # Update the state of the world accordingly
+
+    def goal_achieved(self, goal):
+        return goal in self.state
+
+    def execute_plan(self, plan):
+        for action in plan:
+            self.apply_action(action)
+
+def generate_goal_stack_plan():
+    plan = ["Unstack(A, B)", "PutDown(A)", "Unstack(C, D)", "PutDown(C)"]
+    return plan
+
+def main():
+    world = BlockWorld()
+
+    # Initial state
+    world.add_state("On(A, B)")
+    world.add_state("On(B, Table)")
+    world.add_state("Clear(A)")
+    world.add_state("Clear(C)")
+    world.add_state("On(C, Table)")
+
+    # Goal state
+    goal = "On(A, Table)"
+
+    goal_stack_plan = generate_goal_stack_plan()
+
+    print("Initial State:")
+    print(world.state)
+
+    print("\nExecuting Goal Stack Plan:")
+    world.execute_plan(goal_stack_plan)
+
+    print("\nFinal State:")
+    print(world.state)
+
+    if world.goal_achieved(goal):
+        print(f"\nGoal '{goal}' achieved!")
+    else:
+        print(f"\nGoal '{goal}' not achieved.")
+
+if __name__ == "__main__":
+    main()
+
+
+5)chatbot in the field of educational system
+
+
+import random
+
+def get_response(user_input):
+    user_input = user_input.lower()
+
+    # Educational knowledge base
+    knowledge_base = {
+        "capital of france": "The capital of France is Paris.",
+        "president of the united states": "The current president of the United States is Joe Biden.",
+        "formula for the area of a circle": "The formula for the area of a circle is A = πr^2.",
+        "powerhouse of the cell": "The powerhouse of the cell is the mitochondria.",
+        # Add more educational questions and answers
+    }
+
+    for question, answer in knowledge_base.items():
+        if question in user_input:
+            return answer
+
+    return "I'm sorry, I don't have information on that topic."
+
+# Main loop for chatting
+print("EduBot: Hello! I'm EduBot, your educational assistant. Ask me anything.")
+
+while True:
+    user_input = input("You: ").strip()
+
+    if user_input.lower() == 'exit':
+        print("EduBot: Goodbye!")
+        break
+
+    response = get_response(user_input)
+    print("EduBot:", response)
+
+
+6)expert system
+
+
+class FinancialExpertSystem:
+    def __init__(self):
+        self.knowledge_base = {
+            "income": 0,
+            "expenses": 0,
+            "savings": 0,
+            "debt": 0,
+            "risk_tolerance": 0,
+        }
+
+    def get_user_input(self):
+        print("Financial Expert System: Please provide some information for financial planning.")
+        self.knowledge_base["income"] = float(input("Your monthly income: "))
+        self.knowledge_base["expenses"] = float(input("Your monthly expenses: "))
+        self.knowledge_base["savings"] = float(input("Your current savings: "))
+        self.knowledge_base["debt"] = float(input("Your total debt: "))
+        self.knowledge_base["risk_tolerance"] = float(input("Your risk tolerance (on a scale of 1 to 10): "))
+
+    def financial_assessment(self):
+        score = 0
+
+        # Assess income and expenses
+        if self.knowledge_base["income"] > self.knowledge_base["expenses"]:
+            score += 1
+        else:
+            print("Financial Expert System: Your expenses exceed your income. Consider reducing expenses.")
+
+        # Assess savings and debt
+        if self.knowledge_base["savings"] > 0:
+            score += 1
+        else:
+            print("Financial Expert System: It's advisable to have some savings for emergencies.")
+
+        if self.knowledge_base["debt"] == 0:
+            score += 1
+        else:
+            print("Financial Expert System: Reducing debt should be a priority for better financial health.")
+
+        # Assess risk tolerance
+        if 5 <= self.knowledge_base["risk_tolerance"] <= 8:
+            score += 1
+        else:
+            print("Financial Expert System: Your risk tolerance is outside the recommended range.")
+
+        return score
+
+    def provide_recommendations(self, score):
+        print("Financial Expert System: Based on the assessment, here are some recommendations:")
+        if score >= 3:
+            print("1. Consider investing a portion of your savings to grow your wealth.")
+            print("2. Create a budget to manage expenses effectively.")
+        else:
+            print("1. Focus on reducing debt to improve your financial situation.")
+            print("2. Explore ways to increase your income.")
+
+    def run_expert_system(self):
+        self.get_user_input()
+        score = self.financial_assessment()
+        self.provide_recommendations(score)
+
+if __name__ == "__main__":
+    financial_expert = FinancialExpertSystem()
+    financial_expert.run_expert_system()
+
+
+7)
+implimentation of hill climbing algo
+
+import math
+
+def objective_function(x):
+    # Define the objective function, for example, f(x) = -x^2 + 4x
+    return -x**2 + 4*x
+
+def hill_climbing(initial_position, step_size, max_iterations):
+    current_position = initial_position
+
+    for _ in range(max_iterations):
+        current_value = objective_function(current_position)
+        next_position = current_position + step_size
+        next_value = objective_function(next_position)
+
+        if next_value > current_value:
+            current_position = next_position
+        else:
+            break  # Break if no improvement is found
+
+    return current_position, objective_function(current_position)
+
+if __name__ == "__main__":
+    initial_position = 0.0
+    step_size = 0.1
+    max_iterations = 100
+
+    result_position, result_value = hill_climbing(initial_position, step_size, max_iterations)
+
+    print(f"Optimal Position: {result_position}")
+    print(f"Optimal Value: {result_value}")
+
+8) compare dfs bfs
+
+
+from queue import Queue, LifoQueue
+from copy import deepcopy
+import time
+
+class PuzzleState:
+    def __init__(self, board):
+        self.board = board
+        self.size = len(board)
+
+    def __eq__(self, other):
+        return self.board == other.board
+
+    def __hash__(self):
+        return hash(tuple(map(tuple, self.board)))
+
+    def __str__(self):
+        return '\n'.join([' '.join(map(str, row)) for row in self.board])
+
+    def find_blank(self):
+        for i in range(self.size):
+            for j in range(self.size):
+                if self.board[i][j] == 0:
+                    return i, j
+
+    def generate_moves(self):
+        i, j = self.find_blank()
+        moves = []
+
+        if i > 0:  # Move blank up
+            moves.append(self._create_new_state(i, j, i - 1, j))
+
+        if i < self.size - 1:  # Move blank down
+            moves.append(self._create_new_state(i, j, i + 1, j))
+
+        if j > 0:  # Move blank left
+            moves.append(self._create_new_state(i, j, i, j - 1))
+
+        if j < self.size - 1:  # Move blank right
+            moves.append(self._create_new_state(i, j, i, j + 1))
+
+        return moves
+
+    def _create_new_state(self, i1, j1, i2, j2):
+        new_board = deepcopy(self.board)
+        new_board[i1][j1], new_board[i2][j2] = new_board[i2][j2], new_board[i1][j1]
+        return PuzzleState(new_board)
+
+def bfs(initial_state, goal_state):
+    start_time = time.time()
+
+    visited = set()
+    queue = Queue()
+    queue.put((initial_state, []))
+
+    while not queue.empty():
+        current_state, path = queue.get()
+
+        if current_state == goal_state:
+            end_time = time.time()
+            return path, end_time - start_time
+
+        if current_state not in visited:
+            visited.add(current_state)
+
+            for move in current_state.generate_moves():
+                if move not in visited:
+                    queue.put((move, path + [move]))
+
+    return None, None
+
+def dfs(initial_state, goal_state):
+    start_time = time.time()
+
+    visited = set()
+    stack = LifoQueue()
+    stack.put((initial_state, []))
+
+    while not stack.empty():
+        current_state, path = stack.get()
+
+        if current_state == goal_state:
+            end_time = time.time()
+            return path, end_time - start_time
+
+        if current_state not in visited:
+            visited.add(current_state)
+
+            for move in current_state.generate_moves()[::-1]:  # Reverse the order to simulate a stack
+                if move not in visited:
+                    stack.put((move, path + [move]))
+
+    return None, None
+
+if __name__ == "__main__":
+    initial_state = PuzzleState([[1, 2, 3], [4, 0, 6], [7, 5, 8]])
+    goal_state = PuzzleState([[1, 2, 3], [4, 5, 6], [7, 8, 0]])
+
+    bfs_path, bfs_time = bfs(initial_state, goal_state)
+    dfs_path, dfs_time = dfs(initial_state, goal_state)
+
+    print("BFS Solution:")
+    if bfs_path:
+        for step in bfs_path:
+            print(step)
+    print("Time: {:.6f} seconds".format(bfs_time))
+
+    print("\nDFS Solution:")
+    if dfs_path:
+        for step in dfs_path:
+            print(step)
+    print("Time: {:.6f} seconds".format(dfs_time))
+
